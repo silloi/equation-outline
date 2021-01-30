@@ -26,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.3",
     "next": "latest",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
