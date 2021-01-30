@@ -1,5 +1,8 @@
 import Head from 'next/head'
 
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
+
 export const Home = (): JSX.Element => (
   <div className="container">
     <Head>
@@ -7,7 +10,9 @@ export const Home = (): JSX.Element => (
       <link rel="icon" href="/favicon.ico" />
     </Head>
 
-    <main>
+    <main> 
+      <InlineMath>\int_0^\infty x^2 dx</InlineMath>
+      <BlockMath>\int_0^\infty x^2 dx</BlockMath>
       <h1 className="title">
         Welcome to <a href="https://nextjs.org">Next.js!</a>
       </h1>
