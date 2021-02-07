@@ -7,35 +7,35 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 import 'katex/dist/katex.min.css';
-import { BlockMath } from 'react-katex';
+import { InlineMath, BlockMath } from 'react-katex';
 
-interface Formula {
+interface Item {
   ref1: number
   ref2: number
   eq: string
 }
 
 type Props = {
-  formulae: Formula[];
+  itemList: Item[];
 }
 
 const Line = (props: Props) => {
-  const { formulae } = props
+  const { itemList } = props
 
-  const refEq = (formula: Formula) => {
+  const refEq = (item: Item) => {
     let str = ''
     str += '('
-    str += formula.ref1
-    if (formula.ref2) str += '. ' + formula.ref2
+    str += item.ref1
+    if (item.ref2) str += '. ' + item.ref2
     str += ')'
     return str
   }
 
   return (
     <ul>
-      {formulae.map(formula => <List key={formula.eq}>
+      {itemList.map(item => <List key={`${item.ref1}-${item.ref2}`}>
         <ListItem>
-          <BlockMath math={`${refEq(formula)} ${formula.eq}`} />
+          <BlockMath math={`${refEq(item)} ${item.eq}`} />
         </ListItem>
       </List>)}
     </ul>
@@ -43,13 +43,13 @@ const Line = (props: Props) => {
 }
 
 export const Home = () => {
-  const [formulae, setFormulae] = useState([])
+  const [itemList, setIteme] = useState([])
 
   useEffect(() => {
-    setFormulae([])
+    setIteme([])
   }, [])
 
-  const [input, setInput] = useState({ ref1: null, ref2: null, eq: '' })
+  const [input, setInput] = useState({ ref1: 1, ref2: 1, eq: '' })
 
   const handleInput = (e: { target: { name: any; value: any; }; }) => {
     switch (e.target.name) {
@@ -74,13 +74,11 @@ export const Home = () => {
           eq: input.eq
         });
         break;
-      default:
-        console.log('key not found');
     }
   }
 
   const addEquation = (eq: { ref1: number, ref2: number, eq: string }) => {
-    setFormulae([...formulae, eq])
+    setIteme([...itemList, eq])
 
     setInput({...input, ref2: input.ref2 + 1})
   }
@@ -99,7 +97,7 @@ export const Home = () => {
           <TextField id="outlined-basic" name="eq" label="Input equation" variant="outlined" value={input.eq} onChange={handleInput} />
           <Button variant="contained" onClick={() => addEquation(input)}>Insert</Button>
         </div>
-        <Line formulae={formulae}/>
+        <Line itemList={itemList}/>
       </main>
     </div>
   )
