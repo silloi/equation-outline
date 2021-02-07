@@ -43,13 +43,15 @@ const Line = (props: Props) => {
 }
 
 export const Home = () => {
-  const [itemList, setIteme] = useState([])
+  const [itemList, setitemList] = useState([])
 
   useEffect(() => {
-    setIteme([])
+    setitemList([])
   }, [])
 
   const [input, setInput] = useState({ ref1: 1, ref2: 1, eq: '' })
+
+  const [fileBase64, setFileBase64] = useState<any>(null)
 
   const handleInput = (e: { target: { name: any; value: any; }; }) => {
     switch (e.target.name) {
@@ -77,10 +79,61 @@ export const Home = () => {
     }
   }
 
-  const addEquation = (eq: { ref1: number, ref2: number, eq: string }) => {
-    setIteme([...itemList, eq])
+  const addEquation = (eq: { ref1: number, ref2: number, eq: string }, response?: string) => {
+    const eqThis = eq
+
+    if (response) {
+      eq.eq = response
+    }
+
+    setitemList([...itemList, eqThis])
 
     setInput({...input, ref2: input.ref2 + 1})
+  }
+
+  const convertToBase64 = (file: File) => {
+    const fileReader = new FileReader()
+    fileReader.onload = (e) => {
+      setFileBase64(e.target.result)
+    }
+    fileReader.readAsDataURL(file);
+  }
+
+  const inputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files === null) {
+      return
+    }
+
+    console.log('ID', process.env.MATHPIX_APP_ID)
+
+    convertToBase64(e.target.files[0])
+  }
+
+  const fetchMathpix = async () => {
+    const url = 'https://api.mathpix.com/v3/text'
+
+    const payload = {
+      src: fileBase64,
+      formats: ['text', 'data', 'html'],
+        'data_options': {
+          'include_asciimath': true,
+          'include_latex': true,
+      }
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'content-type': "application/json",
+        'app_id': process.env.MATHPIX_APP_ID,
+        'app_key': process.env.MATHPIX_APP_KEY,
+      },
+      body: JSON.stringify(payload)
+    })
+
+    const data = await response.json()
+
+    addEquation(input, data.data[1].value)
   }
 
   return (
@@ -92,10 +145,15 @@ export const Home = () => {
   
       <main> 
         <div style={{ marginTop: 10 }}>
-          <TextField id="outlined-basic" name="ref1" label="Input ref1" type="number" variant="outlined" value={input.ref1} onChange={handleInput} />
+          <TextField id="outlined-basic" name="rfef1" label="Input ref1" type="number" variant="outlined" value={input.ref1} onChange={handleInput} />
           <TextField id="outlined-basic" name="ref2" label="Input ref2" type="number"variant="outlined" value={input.ref2} onChange={handleInput} />
           <TextField id="outlined-basic" name="eq" label="Input equation" variant="outlined" value={input.eq} onChange={handleInput} />
           <Button variant="contained" onClick={() => addEquation(input)}>Insert</Button>
+          <Button component="label">
+            Input File
+            <input type="file" onChange={inputFile} style={{opacity: 0, appearance: 'none', position: 'absolute' }} />
+          </Button>
+          <Button variant="contained" onClick={() => fetchMathpix()}>Ajax</Button>
         </div>
         <Line itemList={itemList}/>
       </main>
