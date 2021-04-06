@@ -44,7 +44,7 @@ const Line = (props: Props) => {
   );
 }
 
-export const Home = ({ isConnected }) => {
+export const Home = ({ isConnected, usersData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
@@ -154,6 +154,7 @@ export const Home = ({ isConnected }) => {
               for instructions.
             </h2>
           )}
+        <p>{usersData[0].name}</p>
         <div style={{ marginTop: 10 }}>
           <TextField id="outlined-basic" name="rfef1" label="Input ref1" type="number" variant="outlined" value={input.ref1} onChange={handleInput} />
           <TextField id="outlined-basic" name="ref2" label="Input ref2" type="number"variant="outlined" value={input.ref2} onChange={handleInput} />
@@ -176,8 +177,11 @@ export async function getStaticProps() {
 
   const isConnected = await client.isConnected()
 
+  const response = await fetch('http://localhost:3000/api/users');
+  const usersData = await response.json();
+
   return {
-    props: { isConnected },
+    props: { isConnected, usersData },
   }
 }
 
