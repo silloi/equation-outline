@@ -46,12 +46,7 @@ const Line = (props: Props) => {
   )
 }
 
-interface HomeProps {
-  isConnected: boolean
-  usersData: any[]
-}
-
-export const Home = (props: HomeProps) => {
+export const Home = ({ isConnected, usersData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
@@ -157,7 +152,7 @@ export const Home = (props: HomeProps) => {
       </Head>
 
       <main>
-        {props.isConnected ? (
+        {isConnected ? (
           <h2 className="subtitle">You are connected to MongoDB</h2>
         ) : (
           <h2 className="subtitle">
@@ -165,7 +160,7 @@ export const Home = (props: HomeProps) => {
             for instructions.
           </h2>
         )}
-        <p>{props.usersData[0].name}</p>
+        <p>{usersData[0].name}</p>
         <div style={{ marginTop: 10 }}>
           <TextField
             id="outlined-basic"
@@ -212,6 +207,12 @@ export const Home = (props: HomeProps) => {
       </main>
     </div>
   )
+}
+
+// Propsのデフォルト値
+Home.defaultProps = {
+  isConnected: false,
+  usersData: [],
 }
 
 export async function getStaticProps() {
