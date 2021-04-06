@@ -9,6 +9,8 @@ import TextField from '@material-ui/core/TextField';
 import 'katex/dist/katex.min.css';
 import { InlineMath, BlockMath } from 'react-katex';
 
+import { connectToDatabase } from '../util/mongodb'
+
 interface Item {
   ref1: number
   ref2: number
@@ -42,7 +44,7 @@ const Line = (props: Props) => {
   );
 }
 
-export const Home = () => {
+export const Home = ({ isConnected }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
@@ -144,6 +146,14 @@ export const Home = () => {
       </Head>
   
       <main> 
+        {isConnected ? (
+          <h2 className="subtitle">You are connected to MongoDB</h2>
+          ) : (
+            <h2 className="subtitle">
+              You are NOT connected to MongoDB. Check the <code>README.md</code>{' '}
+              for instructions.
+            </h2>
+          )}
         <div style={{ marginTop: 10 }}>
           <TextField id="outlined-basic" name="rfef1" label="Input ref1" type="number" variant="outlined" value={input.ref1} onChange={handleInput} />
           <TextField id="outlined-basic" name="ref2" label="Input ref2" type="number"variant="outlined" value={input.ref2} onChange={handleInput} />
@@ -159,6 +169,16 @@ export const Home = () => {
       </main>
     </div>
   )
+}
+
+export async function getStaticProps() {
+  const { client } = await connectToDatabase()
+
+  const isConnected = await client.isConnected()
+
+  return {
+    props: { isConnected },
+  }
 }
 
 export default Home
