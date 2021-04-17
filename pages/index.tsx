@@ -44,11 +44,11 @@ const Line = (props: Props) => {
   )
 }
 
-export const Home = ({ usersData, postsData, projectsData }) => {
+export const Home = ({ usersData, projectsData, postsData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
-    setitemList(postsData.data)
+    setitemList(postsData)
   }, [])
 
   const [input, setInput] = useState({ section: 1, line: 1, equation: '' })
@@ -122,7 +122,7 @@ export const Home = ({ usersData, postsData, projectsData }) => {
       section: equation.section,
       line: equation.line,
       user: usersData[0]._id,
-      project: projectsData.data[0]._id,
+      project: projectsData[0]._id,
     })
 
     setitemList([...itemList, eqThis])
@@ -243,19 +243,19 @@ Home.defaultProps = {
 
 export async function getStaticProps() {
   const responseUsers = await fetch('http://localhost:3000/api/users')
-  const usersData = await responseUsers.json()
+  const users = await responseUsers.json()
 
   const responseProjects = await fetch('http://localhost:3000/api/projects')
-  const projectsData = await responseProjects.json()
+  const projects = await responseProjects.json()
 
   const responsePosts = await fetch('http://localhost:3000/api/posts')
-  const postsData = await responsePosts.json()
+  const posts = await responsePosts.json()
 
   return {
     props: {
-      usersData,
-      postsData,
-      projectsData,
+      usersData: users.data,
+      projectsData: projects.data,
+      postsData: posts.data,
     },
   }
 }
