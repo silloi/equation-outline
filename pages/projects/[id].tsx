@@ -5,6 +5,8 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 
 import Line from '../../components/Line'
+import dbConnect from '../../utils/dbConnect'
+import Project from '../../models/project'
 
 export const Home = ({ usersData, projectData, postsData }) => {
   const [itemList, setitemList] = useState([])
@@ -205,11 +207,18 @@ Home.defaultProps = {
 
 // 最初に実行される。事前ビルドするパスを配列でreturnする。
 export async function getStaticPaths() {
-  const res = await fetch('http://localhost:3000/api/projects')
-  const projects = await res.json()
+  await dbConnect()
+
+  /* find all the data in our database */
+  const result = await Project.find({})
   // レポジトリの名前をパスとする
-  const paths = projects.data.map(project => `/projects/${project._id}`)
-  // 事前ビルドしたいパスをpathsとして渡す fallbackについては後述
+  const paths = result.map((doc) => {
+    const project = doc.toObject()
+    project._id = project._id.toString()
+    return `/projects/${project._id}`
+  })
+
+  // 事前ビルドしたいパスをpathsとして渡す fallbackについては後述  
   return { paths, fallback: false }
 }
 
