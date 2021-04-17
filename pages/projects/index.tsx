@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
+import FormProject from '../../components/FormProject'
 
 interface Project {
   _id: string;
@@ -31,7 +32,7 @@ const LineProjects = (props: Props) => {
   )
 }
 
-export const Home = ({ projectsData }) => {
+export const ProjectIndex = ({ projectsData }) => {
   return (
     <div className="container">
       <Head>
@@ -41,6 +42,7 @@ export const Home = ({ projectsData }) => {
 
       <main>
         <h1>Projects</h1>
+        <FormProject />
         <LineProjects itemList={projectsData} />
       </main>
     </div>
@@ -48,9 +50,8 @@ export const Home = ({ projectsData }) => {
 }
 
 // Propsのデフォルト値
-Home.defaultProps = {
-  isConnected: false,
-  usersData: [],
+ProjectIndex.defaultProps = {
+  projectsData: []
 }
 
 export async function getStaticProps() {
@@ -68,4 +69,4 @@ export async function getStaticProps() {
   }
 }
 
-export default Home
+export default ProjectIndex
