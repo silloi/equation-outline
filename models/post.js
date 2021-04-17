@@ -20,8 +20,8 @@ const PostSchema = new Schema({
     required: true
   },
   project: {
-    type: String,
-    // ref: 'Project',
+    type: Schema.Types.ObjectId,
+    ref: 'Project',
     required: true
   },
 });

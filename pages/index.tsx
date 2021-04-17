@@ -9,8 +9,6 @@ import TextField from '@material-ui/core/TextField'
 import 'katex/dist/katex.min.css'
 import { BlockMath } from 'react-katex'
 
-import { connectToDatabase } from '../util/mongodb'
-
 interface Item {
   section: number
   line: number
@@ -46,7 +44,7 @@ const Line = (props: Props) => {
   )
 }
 
-export const Home = ({ usersData, postsData }) => {
+export const Home = ({ usersData, postsData, projectsData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
@@ -124,7 +122,7 @@ export const Home = ({ usersData, postsData }) => {
       section: equation.section,
       line: equation.line,
       user: usersData[0]._id,
-      project: 'test',
+      project: projectsData.data[0]._id,
     })
 
     setitemList([...itemList, eqThis])
@@ -247,6 +245,9 @@ export async function getStaticProps() {
   const responseUsers = await fetch('http://localhost:3000/api/users')
   const usersData = await responseUsers.json()
 
+  const responseProjects = await fetch('http://localhost:3000/api/projects')
+  const projectsData = await responseProjects.json()
+
   const responsePosts = await fetch('http://localhost:3000/api/posts')
   const postsData = await responsePosts.json()
 
@@ -254,6 +255,7 @@ export async function getStaticProps() {
     props: {
       usersData,
       postsData,
+      projectsData,
     },
   }
 }
