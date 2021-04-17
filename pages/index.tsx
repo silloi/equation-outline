@@ -8,6 +8,10 @@ import TextField from '@material-ui/core/TextField'
 
 import 'katex/dist/katex.min.css'
 import { BlockMath } from 'react-katex'
+import User from '../models/user'
+import Project from '../models/project'
+import Post from '../models/post'
+import dbConnect from '../utils/dbConnect'
 
 interface Item {
   section: number
@@ -242,21 +246,37 @@ Home.defaultProps = {
 }
 
 export async function getStaticProps() {
-  const responseUsers = await fetch('http://localhost:3000/api/users')
-  const users = await responseUsers.json()
+  await dbConnect()
 
-  const responseProjects = await fetch('http://localhost:3000/api/projects')
-  const projects = await responseProjects.json()
+  /* find all the data in our database */
+  const resultUsers = await User.find({})
+  const users = resultUsers.map((doc) => {
+    const user = doc.toObject()
+    user._id = user._id.toString()
+    return user
+  })
 
-  const responsePosts = await fetch('http://localhost:3000/api/posts')
-  const posts = await responsePosts.json()
+  const resultProjects = await Project.find({})
+  const projects = resultProjects.map((doc) => {
+    const project = doc.toObject()
+    project._id = project._id.toString()
+    return project
+  })
 
-  return {
-    props: {
-      usersData: users.data,
-      projectsData: projects.data,
-      postsData: posts.data,
-    },
+  const resultPosts = await Post.find({})
+  const posts = resultPosts.map((doc) => {
+    const post = doc.toObject()
+    post._id = post._id.toString()
+    post.user = post.user.toString()
+    post.project = post.project.toString()
+    return post
+  })
+
+  return { props: {
+    usersData: users,
+    projectsData: projects,
+    postsData: posts,
+    }
   }
 }
 

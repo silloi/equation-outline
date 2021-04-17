@@ -7,6 +7,8 @@ import TextField from '@material-ui/core/TextField'
 import Line from '../../components/Line'
 import dbConnect from '../../utils/dbConnect'
 import Project from '../../models/project'
+import User from '../../models/user'
+import Post from '../../models/post'
 
 export const Home = ({ usersData, projectData, postsData }) => {
   const [itemList, setitemList] = useState([])
@@ -222,24 +224,35 @@ export async function getStaticPaths() {
   return { paths, fallback: false }
 }
 
-export async function getStaticProps(context) {
-  const projectId = context.params.id
+export async function getStaticProps({ params }) {
+  await dbConnect()
 
-  const responseUsers = await fetch('http://localhost:3000/api/users')
-  const users = await responseUsers.json()
+  /* find all the data in our database */
+  const resultUsers = await User.find({})
+  const users = resultUsers.map((doc) => {
+    const user = doc.toObject()
+    user._id = user._id.toString()
+    return user
+  })
 
-  const responseProject = await fetch(`http://localhost:3000/api/projects/${projectId}`)
-  const project = await responseProject.json()
+  const project = await Project.findById(params.id).lean()
+  project._id = project._id.toString()
+  project._id = project._id.toString()
 
-  const responsePosts = await fetch(`http://localhost:3000/api/posts?projectId=${projectId}`)
-  const posts = await responsePosts.json()
+  const resultPosts = await Post.find({})
+  const posts = resultPosts.map((doc) => {
+    const post = doc.toObject()
+    post._id = post._id.toString()
+    post.user = post.user.toString()
+    post.project = post.project.toString()
+    return post
+  })
 
-  return {
-    props: {
-      usersData: users.data,
-      projectData: project.data,
-      postsData: posts.data,
-    },
+  return { props: {
+    usersData: users,
+    projectData: project,
+    postsData: posts,
+    }
   }
 }
 

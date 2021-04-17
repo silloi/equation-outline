@@ -4,6 +4,9 @@ import Link from 'next/link'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import FormProject from '../../components/FormProject'
+import dbConnect from '../../utils/dbConnect'
+import User from '../../models/user'
+import Project from '../../models/project'
 
 interface Project {
   _id: string;
@@ -55,17 +58,27 @@ ProjectIndex.defaultProps = {
 }
 
 export async function getStaticProps() {
-  const responseUsers = await fetch('http://localhost:3000/api/users')
-  const users = await responseUsers.json()
+  await dbConnect()
 
-  const responseProjects = await fetch('http://localhost:3000/api/projects')
-  const projects = await responseProjects.json()
+  /* find all the data in our database */
+  const resultUsers = await User.find({})
+  const users = resultUsers.map((doc) => {
+    const user = doc.toObject()
+    user._id = user._id.toString()
+    return user
+  })
 
-  return {
-    props: {
-      usersData: users.data,
-      projectsData: projects.data,
-    },
+  const resultProjects = await Project.find({})
+  const projects = resultProjects.map((doc) => {
+    const project = doc.toObject()
+    project._id = project._id.toString()
+    return project
+  })
+
+  return { props: {
+    usersData: users,
+    projectsData: projects,
+    }
   }
 }
 
