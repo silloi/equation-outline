@@ -83,7 +83,32 @@ export const Home = ({ isConnected, usersData }) => {
     }
   }
 
-  const addEquation = (
+  /* The POST method adds a new entry in the mongodb database. */
+  const postData = async (payload: any) => {
+    const contentType = 'application/json'
+
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          Accept: contentType,
+          'Content-Type': contentType,
+        },
+        body: JSON.stringify(payload),
+      })
+
+      // Throw error with status code in case Fetch API req failed
+      if (!res.ok) {
+        throw new Error(res.status.toString())
+      }
+
+      // router.push('/')
+    } catch (error) {
+      // setMessage('Failed to add pet')
+    }
+  }
+
+  const addEquation = async (
     eq: { ref1: number; ref2: number; eq: string },
     response?: string
   ) => {
@@ -92,6 +117,15 @@ export const Home = ({ isConnected, usersData }) => {
     if (response) {
       eq.eq = response
     }
+
+    // post
+    await postData({
+      equation: eq.eq,
+      section: eq.ref1,
+      line: eq.ref2,
+      user: usersData._id,
+      project: '',
+    })
 
     setitemList([...itemList, eqThis])
 
@@ -141,7 +175,7 @@ export const Home = ({ isConnected, usersData }) => {
 
     const data = await response.json()
 
-    addEquation(input, data.data[1].value)
+    await addEquation(input, data.data[1].value)
   }
 
   return (
@@ -188,9 +222,10 @@ export const Home = ({ isConnected, usersData }) => {
             value={input.eq}
             onChange={handleInput}
           />
-          <Button variant="contained" onClick={() => addEquation(input)}>
+          <Button variant="contained" onClick={async () => await addEquation(input)}>
             Insert
           </Button>
+          <br/>
           <Button component="label">
             Input File
             <input
@@ -199,6 +234,7 @@ export const Home = ({ isConnected, usersData }) => {
               style={{ opacity: 0, appearance: 'none', position: 'absolute' }}
             />
           </Button>
+          <br/>
           <Button variant="contained" onClick={() => fetchMathpix()}>
             Ajax
           </Button>
