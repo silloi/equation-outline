@@ -12,9 +12,9 @@ import { BlockMath } from 'react-katex'
 import { connectToDatabase } from '../util/mongodb'
 
 interface Item {
-  ref1: number
-  ref2: number
-  eq: string
+  section: number
+  line: number
+  equation: string
 }
 
 type Props = {
@@ -27,8 +27,8 @@ const Line = (props: Props) => {
   const refEq = (item: Item) => {
     let str = ''
     str += '('
-    str += item.ref1
-    if (item.ref2) str += '. ' + item.ref2
+    str += item.section
+    if (item.line) str += '. ' + item.line
     str += ')'
     return str
   }
@@ -36,9 +36,9 @@ const Line = (props: Props) => {
   return (
     <ul>
       {itemList.map((item) => (
-        <List key={`${item.ref1}-${item.ref2}`}>
+        <List key={`${item.section}-${item.line}`}>
           <ListItem>
-            <BlockMath math={`${refEq(item)} ${item.eq}`} />
+            <BlockMath math={`${refEq(item)} ${item.equation}`} />
           </ListItem>
         </List>
       ))}
@@ -46,38 +46,38 @@ const Line = (props: Props) => {
   )
 }
 
-export const Home = ({ isConnected, usersData }) => {
+export const Home = ({ usersData, postsData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
-    setitemList([])
+    setitemList(postsData.data)
   }, [])
 
-  const [input, setInput] = useState({ ref1: 1, ref2: 1, eq: '' })
+  const [input, setInput] = useState({ section: 1, line: 1, equation: '' })
 
   const [fileBase64, setFileBase64] = useState<any>(null)
 
   const handleInput = (e: { target: { name: any; value: any } }) => {
     switch (e.target.name) {
-      case 'eq':
+      case 'equation':
         setInput({
-          ref1: input.ref1,
-          ref2: input.ref2,
-          eq: e.target.value,
+          section: input.section,
+          line: input.line,
+          equation: e.target.value,
         })
         break
-      case 'ref1':
+      case 'section':
         setInput({
-          ref1: e.target.value,
-          ref2: input.ref2,
-          eq: input.eq,
+          section: e.target.value,
+          line: input.line,
+          equation: input.equation,
         })
         break
-      case 'ref2':
+      case 'line':
         setInput({
-          ref1: input.ref1,
-          ref2: e.target.value,
-          eq: input.eq,
+          section: input.section,
+          line: e.target.value,
+          equation: input.equation,
         })
         break
     }
@@ -109,27 +109,27 @@ export const Home = ({ isConnected, usersData }) => {
   }
 
   const addEquation = async (
-    eq: { ref1: number; ref2: number; eq: string },
+    equation: { section: number; line: number; equation: string },
     response?: string
   ) => {
-    const eqThis = eq
+    const eqThis = equation
 
     if (response) {
-      eq.eq = response
+      equation.equation = response
     }
 
     // post
     await postData({
-      equation: eq.eq,
-      section: eq.ref1,
-      line: eq.ref2,
-      user: usersData._id,
-      project: '',
+      equation: equation.equation,
+      section: equation.section,
+      line: equation.line,
+      user: usersData[0]._id,
+      project: 'test',
     })
 
     setitemList([...itemList, eqThis])
 
-    setInput({ ...input, ref2: input.ref2 + 1 })
+    setInput({ ...input, line: parseInt(input.line.toString()) + 1 })
   }
 
   const convertToBase64 = (file: File) => {
@@ -186,40 +186,32 @@ export const Home = ({ isConnected, usersData }) => {
       </Head>
 
       <main>
-        {isConnected ? (
-          <h2 className="subtitle">You are connected to MongoDB</h2>
-        ) : (
-          <h2 className="subtitle">
-            You are NOT connected to MongoDB. Check the <code>README.md</code>{' '}
-            for instructions.
-          </h2>
-        )}
         <p>{usersData[0].name}</p>
         <div style={{ marginTop: 10 }}>
           <TextField
             id="outlined-basic"
             name="rfef1"
-            label="Input ref1"
+            label="Input section"
             type="number"
             variant="outlined"
-            value={input.ref1}
+            value={input.section}
             onChange={handleInput}
           />
           <TextField
             id="outlined-basic"
-            name="ref2"
-            label="Input ref2"
+            name="line"
+            label="Input line"
             type="number"
             variant="outlined"
-            value={input.ref2}
+            value={input.line}
             onChange={handleInput}
           />
           <TextField
             id="outlined-basic"
-            name="eq"
+            name="equation"
             label="Input equation"
             variant="outlined"
-            value={input.eq}
+            value={input.equation}
             onChange={handleInput}
           />
           <Button variant="contained" onClick={async () => await addEquation(input)}>
@@ -252,15 +244,17 @@ Home.defaultProps = {
 }
 
 export async function getStaticProps() {
-  const { client } = await connectToDatabase()
+  const responseUsers = await fetch('http://localhost:3000/api/users')
+  const usersData = await responseUsers.json()
 
-  const isConnected = await client.isConnected()
-
-  const response = await fetch('http://localhost:3000/api/users')
-  const usersData = await response.json()
+  const responsePosts = await fetch('http://localhost:3000/api/posts')
+  const postsData = await responsePosts.json()
 
   return {
-    props: { isConnected, usersData },
+    props: {
+      usersData,
+      postsData,
+    },
   }
 }
 

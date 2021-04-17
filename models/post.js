@@ -14,16 +14,16 @@ const PostSchema = new Schema({
     type: Number,
     required: true
   },
-  // user: {
-  //   type: String,
-  //   ref: 'User',
-  //   required: true
-  // },
-  // project: {
-  //   type: String,
-  //   ref: 'Project',
-  //   required: true
-  // },
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  project: {
+    type: String,
+    // ref: 'Project',
+    required: true
+  },
 });
 
 export default mongoose.models.Post || mongoose.model('Post', PostSchema)
