@@ -109,9 +109,6 @@ export const Home = ({ usersData, projectData, postsData }) => {
       return
     }
 
-    // eslint-disable-next-line no-console
-    console.log('ID', process.env.MATHPIX_APP_ID)
-
     convertToBase64(e.target.files[0])
   }
 
@@ -131,8 +128,8 @@ export const Home = ({ usersData, projectData, postsData }) => {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        app_id: process.env.MATHPIX_APP_ID,
-        app_key: process.env.MATHPIX_APP_KEY,
+        app_id: process.env.NEXT_PUBLIC_MATHPIX_APP_ID,
+        app_key: process.env.NEXT_PUBLIC_MATHPIX_APP_KEY,
       },
       body: JSON.stringify(payload),
     })
