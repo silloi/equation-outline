@@ -10,7 +10,7 @@ import Project from '../../models/project'
 import User from '../../models/user'
 import Post from '../../models/post'
 
-export const Home = ({ usersData, projectData, postsData }) => {
+export const ProjectPage = ({ usersData, projectData, postsData }) => {
   const [itemList, setitemList] = useState([])
 
   useEffect(() => {
@@ -217,6 +217,13 @@ export async function getStaticPaths() {
   return { paths, fallback: false }
 }
 
+// Propsのデフォルト値
+ProjectPage.defaultProps = {
+  usersData: [],
+  projectData: null,
+  postsData: [],
+}
+
 export async function getStaticProps({ params }) {
   await dbConnect()
 
@@ -250,4 +257,4 @@ export async function getStaticProps({ params }) {
   }
 }
 
-export default Home
+export default ProjectPage
