@@ -249,6 +249,7 @@ export async function getStaticProps({ params }) {
   })
 
   return {
+    revalidate: 1,
     props: {
       usersData: users,
       projectData: project,
