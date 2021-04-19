@@ -237,9 +237,8 @@ export async function getStaticProps({ params }) {
 
   const project = await Project.findById(params.id).lean()
   project._id = project._id.toString()
-  project._id = project._id.toString()
 
-  const resultPosts = await Post.find({})
+  const resultPosts = await Post.find({ project: params.id })
   const posts = resultPosts.map((doc) => {
     const post = doc.toObject()
     post._id = post._id.toString()
