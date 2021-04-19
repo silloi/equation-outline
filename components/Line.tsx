@@ -31,7 +31,9 @@ export const Line = (props: Props) => {
       {itemList.map((item) => (
         <List key={`${item.section}-${item.line}`}>
           <ListItem>
-            <BlockMath math={`${refEq(item)} ${item.equation}`} />
+            <BlockMath math={refEq(item)}></BlockMath>
+            <span>&nbsp;</span>
+            <BlockMath math={item.equation} />
           </ListItem>
         </List>
       ))}
