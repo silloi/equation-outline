@@ -1,239 +1,26 @@
 import Head from 'next/head'
-import React, { useState, useEffect } from 'react'
-
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+import Link from 'next/link'
+import React from 'react'
 
 import 'katex/dist/katex.min.css'
-import { BlockMath } from 'react-katex'
 import User from '../models/user'
-import Project from '../models/project'
-import Post from '../models/post'
 import dbConnect from '../utils/dbConnect'
 
-interface Item {
-  section: number
-  line: number
-  equation: string
-}
-
-type Props = {
-  itemList: Item[]
-}
-
-const Line = (props: Props) => {
-  const { itemList } = props
-
-  const refEq = (item: Item) => {
-    let str = ''
-    str += '('
-    str += item.section
-    if (item.line) str += '. ' + item.line
-    str += ')'
-    return str
-  }
-
-  return (
-    <ul>
-      {itemList.map((item) => (
-        <List key={`${item.section}-${item.line}`}>
-          <ListItem>
-            <BlockMath math={`${refEq(item)} ${item.equation}`} />
-          </ListItem>
-        </List>
-      ))}
-    </ul>
-  )
-}
-
-export const Home = ({ usersData, projectsData, postsData }) => {
-  const [itemList, setitemList] = useState([])
-
-  useEffect(() => {
-    setitemList(postsData)
-  }, [])
-
-  const [input, setInput] = useState({ section: 1, line: 1, equation: '' })
-
-  const [fileBase64, setFileBase64] = useState<any>(null)
-
-  const handleInput = (e: { target: { name: any; value: any } }) => {
-    switch (e.target.name) {
-      case 'equation':
-        setInput({
-          section: input.section,
-          line: input.line,
-          equation: e.target.value,
-        })
-        break
-      case 'section':
-        setInput({
-          section: e.target.value,
-          line: input.line,
-          equation: input.equation,
-        })
-        break
-      case 'line':
-        setInput({
-          section: input.section,
-          line: e.target.value,
-          equation: input.equation,
-        })
-        break
-    }
-  }
-
-  /* The POST method adds a new entry in the mongodb database. */
-  const postData = async (payload: any) => {
-    const contentType = 'application/json'
-
-    try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: {
-          Accept: contentType,
-          'Content-Type': contentType,
-        },
-        body: JSON.stringify(payload),
-      })
-
-      // Throw error with status code in case Fetch API req failed
-      if (!res.ok) {
-        throw new Error(res.status.toString())
-      }
-
-      // router.push('/')
-    } catch (error) {
-      // setMessage('Failed to add pet')
-    }
-  }
-
-  const addEquation = async (
-    equation: { section: number; line: number; equation: string },
-    response?: string
-  ) => {
-    const eqThis = equation
-
-    if (response) {
-      equation.equation = response
-    }
-
-    // post
-    await postData({
-      equation: equation.equation,
-      section: equation.section,
-      line: equation.line,
-      user: usersData[0]._id,
-      project: projectsData[0]._id,
-    })
-
-    setitemList([...itemList, eqThis])
-
-    setInput({ ...input, line: parseInt(input.line.toString()) + 1 })
-  }
-
-  const convertToBase64 = (file: File) => {
-    const fileReader = new FileReader()
-    fileReader.onload = (e) => {
-      setFileBase64(e.target.result)
-    }
-    fileReader.readAsDataURL(file)
-  }
-
-  const inputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files === null) {
-      return
-    }
-
-    // eslint-disable-next-line no-console
-    console.log('ID', process.env.MATHPIX_APP_ID)
-
-    convertToBase64(e.target.files[0])
-  }
-
-  const fetchMathpix = async () => {
-    const url = 'https://api.mathpix.com/v3/text'
-
-    const payload = {
-      src: fileBase64,
-      formats: ['text', 'data', 'html'],
-      data_options: {
-        include_asciimath: true,
-        include_latex: true,
-      },
-    }
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        app_id: process.env.MATHPIX_APP_ID,
-        app_key: process.env.MATHPIX_APP_KEY,
-      },
-      body: JSON.stringify(payload),
-    })
-
-    const data = await response.json()
-
-    await addEquation(input, data.data[1].value)
-  }
+export const Home = ({ usersData }) => {
 
   return (
     <div className="container">
       <Head>
-        <title>Create Next App</title>
+        <title>Equation Outline</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main>
-        <p>{usersData[0].name}</p>
-        <div style={{ marginTop: 10 }}>
-          <TextField
-            id="outlined-basic"
-            name="rfef1"
-            label="Input section"
-            type="number"
-            variant="outlined"
-            value={input.section}
-            onChange={handleInput}
-          />
-          <TextField
-            id="outlined-basic"
-            name="line"
-            label="Input line"
-            type="number"
-            variant="outlined"
-            value={input.line}
-            onChange={handleInput}
-          />
-          <TextField
-            id="outlined-basic"
-            name="equation"
-            label="Input equation"
-            variant="outlined"
-            value={input.equation}
-            onChange={handleInput}
-          />
-          <Button variant="contained" onClick={async () => await addEquation(input)}>
-            Insert
-          </Button>
-          <br/>
-          <Button component="label">
-            Input File
-            <input
-              type="file"
-              onChange={inputFile}
-              style={{ opacity: 0, appearance: 'none', position: 'absolute' }}
-            />
-          </Button>
-          <br/>
-          <Button variant="contained" onClick={() => fetchMathpix()}>
-            Ajax
-          </Button>
-        </div>
-        <Line itemList={itemList} />
+        <h1>Equation Outline</h1>
+        <p>You can only use one user: { usersData ? usersData[0].name : null}.</p>
+        <Link href={`/projects`}>
+          <a>Projects</a>
+        </Link>
       </main>
     </div>
   )
@@ -241,8 +28,7 @@ export const Home = ({ usersData, projectsData, postsData }) => {
 
 // Propsのデフォルト値
 Home.defaultProps = {
-  isConnected: false,
-  usersData: [],
+  usersData: []
 }
 
 export async function getStaticProps() {
@@ -256,26 +42,9 @@ export async function getStaticProps() {
     return user
   })
 
-  const resultProjects = await Project.find({})
-  const projects = resultProjects.map((doc) => {
-    const project = doc.toObject()
-    project._id = project._id.toString()
-    return project
-  })
-
-  const resultPosts = await Post.find({})
-  const posts = resultPosts.map((doc) => {
-    const post = doc.toObject()
-    post._id = post._id.toString()
-    post.user = post.user.toString()
-    post.project = post.project.toString()
-    return post
-  })
-
-  return { props: {
-    usersData: users,
-    projectsData: projects,
-    postsData: posts,
+  return {
+    props: {
+      usersData: users,
     }
   }
 }
