@@ -200,12 +200,6 @@ export const Home = ({ usersData, projectData, postsData }) => {
   )
 }
 
-// Propsのデフォルト値
-Home.defaultProps = {
-  isConnected: false,
-  usersData: [],
-}
-
 // 最初に実行される。事前ビルドするパスを配列でreturnする。
 export async function getStaticPaths() {
   await dbConnect()
@@ -247,10 +241,11 @@ export async function getStaticProps({ params }) {
     return post
   })
 
-  return { props: {
-    usersData: users,
-    projectData: project,
-    postsData: posts,
+  return {
+    props: {
+      usersData: users,
+      projectData: project,
+      postsData: posts,
     }
   }
 }
