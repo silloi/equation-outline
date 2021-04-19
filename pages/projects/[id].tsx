@@ -175,21 +175,23 @@ export const Home = ({ usersData, projectData, postsData }) => {
             value={input.equation}
             onChange={handleInput}
           />
-          <Button variant="contained" onClick={async () => await addEquation(input)}>
+          <Button variant="contained" style={{marginLeft: 10}} onClick={async () => await addEquation(input)}>
             Insert
           </Button>
+          {fileBase64 ? <Button variant="contained" style={{marginLeft: 10}} onClick={() => fetchMathpix()}>
+            Ajax
+          </Button> : null}
           <br/>
-          <Button component="label">
-            Input File
+          <Button component="label" style={{marginLeft: 10}}>
+            <label htmlFor="file">
+              Input File
+            </label>
             <input
+              id="file"
               type="file"
               onChange={inputFile}
               style={{ opacity: 0, appearance: 'none', position: 'absolute' }}
             />
-          </Button>
-          <br/>
-          <Button variant="contained" onClick={() => fetchMathpix()}>
-            Ajax
           </Button>
         </div>
         <Line itemList={itemList} />
