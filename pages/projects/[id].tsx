@@ -189,6 +189,8 @@ export const ProjectPage = ({ usersData, projectData, postsData }) => {
             <input
               id="file"
               type="file"
+              accept="image/*"
+              capture="environment"
               onChange={inputFile}
               style={{ opacity: 0, appearance: 'none', position: 'absolute' }}
             />
